@@ -28,13 +28,18 @@
                   cols="12"
                   md="6"
                 >
-                  <v-text-field
+                  <v-select
+                    v-model="player.team"
+                    :items="teams"
+                    label="Escolha um time"
+                  ></v-select>
+                  <!-- <v-text-field
                     v-model="player.team"
                     :counter="10"
                     :rules="teamRules"
                     label="Time do jogador"
                     required
-                  ></v-text-field>
+                  ></v-text-field> -->
                 </v-col>
 
                 <v-col
@@ -83,11 +88,34 @@
       </v-main>
     </v-layout>
   </v-card>
+
+  <v-dialog
+    v-model="dialog"
+    width="auto"
+  >
+    <v-card
+      max-width="400"
+      prepend-icon="mdi-check-bold"
+      :text="dialogMessage"
+      :title="dialogTitle"
+    >
+      <template v-slot:actions>
+        <v-btn
+          class="ms-auto"
+          text="Ok"
+          @click="dialog = false"
+        ></v-btn>
+      </template>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
   export default {
     data: () => ({
+      dialog: false,
+      dialogTitle: '',
+      dialogMessage: '',
       valid: false,
       player: { name: '', team: '', cpf: '' },
       players: [],
@@ -155,14 +183,38 @@
         { title: 'Time', align: 'start', key: 'team' },
         { title: 'CPF', align: 'start', key: 'cpf' },
       ],
+      teams: ['UNIDEV', 'CORINTIA', 'FRAMENGO', 'BAIA', 'MARCELONA']
     }),
     methods: {
       savePlayer() {
         if (this.valid) {
+
+          const totalOfPlayersInTeam = this.countTeams(this.player.team)
+
+          if (totalOfPlayersInTeam > 2) {
+            this.dialogTitle = "Oups!!!"
+            this.dialogMessage = "Esse time não aceita mais jogadores!"
+            this.dialog = true
+            return
+          }
+
           this.players.push({ ...this.player })
-          alert('salvou!!!')
           this.$refs.form.reset()
+          this.dialogTitle = "Uêba!!!"
+          this.dialogMessage = "Jogador cadastrado com sucesso!"
+          this.dialog = true          
         }
+      },
+      countTeams(team) {
+        let total = 0;
+
+        this.players.map((player) => {
+          if (player.team === team) {
+            total++
+          }
+        })
+
+        return total
       }
     }
   }
