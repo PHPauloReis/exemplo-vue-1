@@ -8,7 +8,7 @@
       <v-main>
         <v-container fluid>
           
-          <v-form ref="form" v-model="valid" @submit.prevent>
+          <v-form :key="formKey" ref="form" v-model="formIsValid" @submit.prevent="savePlayer">
             <v-container>
               <v-row>
                 <v-col
@@ -31,15 +31,10 @@
                   <v-select
                     v-model="player.team"
                     :items="teams"
-                    label="Escolha um time"
-                  ></v-select>
-                  <!-- <v-text-field
-                    v-model="player.team"
-                    :counter="10"
                     :rules="teamRules"
-                    label="Time do jogador"
+                    label="Escolha um time"
                     required
-                  ></v-text-field> -->
+                  ></v-select>
                 </v-col>
 
                 <v-col
@@ -57,7 +52,7 @@
                 <v-col
                   cols="12"
                 >
-                  <v-btn @click="savePlayer" class="mt-2" type="submit" color="success" block>Cadastrar jogador</v-btn>
+                  <v-btn class="mt-2" type="submit" color="success" block>Cadastrar jogador</v-btn>
                 </v-col>
 
               </v-row>
@@ -113,6 +108,8 @@
 <script>
   export default {
     data: () => ({
+      formKey: 1,
+      formIsValid: false,
       dialog: false,
       dialogTitle: '',
       dialogMessage: '',
@@ -187,7 +184,7 @@
     }),
     methods: {
       savePlayer() {
-        if (this.valid) {
+        if (this.formIsValid) {
 
           const totalOfPlayersInTeam = this.countTeams(this.player.team)
 
@@ -199,7 +196,10 @@
           }
 
           this.players.push({ ...this.player })
+          this.formKey++
           this.$refs.form.reset()
+          this.$refs.form.resetValidation()
+
           this.dialogTitle = "Uêba!!!"
           this.dialogMessage = "Jogador cadastrado com sucesso!"
           this.dialog = true          
